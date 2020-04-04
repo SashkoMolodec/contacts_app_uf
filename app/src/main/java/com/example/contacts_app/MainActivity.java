@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,12 +17,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
 
     ListView listView;
     TextView textView;
     FloatingActionButton f_button_add;
+    RadioGroup rg;
+    RadioButton rb_name, rb_recently, rb_surname;
 
     int ID_contactPage = 1;
     int ID_addContact = 2;
@@ -39,6 +44,11 @@ public class MainActivity extends AppCompatActivity {
         listView = findViewById(R.id.contacts_list);
         textView = findViewById(R.id.displayContact);
         f_button_add = findViewById(R.id.fab_add);
+
+        rg = findViewById(R.id.radio_group);
+        rb_name = findViewById(R.id.radio_name);
+        rb_recently = findViewById(R.id.radio_recently);
+        rb_surname = findViewById(R.id.radio_surname);
 
         contacts = new ArrayList<>();
         contacts.add(new Contact(1, "Sasha", "+3580545"));
@@ -89,6 +99,33 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(i, ID_addContact);
             }
         });
+        rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+
+                switch (checkedId){
+                    case R.id.radio_name:
+                        Log.v("radioButton","Name RadioButton");
+                        //Collections.sort(contactsForList, new Contact.ComparatorByName());
+                        //ArrayList<String>
+                        Collections.sort(contactsForList);
+                        //contactsForList.sort(new Contact.ComparatorByName());
+                        break;
+                    case R.id.radio_surname:
+                        Log.v("radioButton","Surname RadioButton");
+                        break;
+                    case R.id.radio_recently:
+                        Log.v("radioButton","Recently RadioButton");
+                        Collections.sort(contacts,new Contact.ComparatorById());
+                        contactsForList.clear();
+                        contactsForList.addAll(Contact.getAllNames(contacts));
+                        break;
+                }
+                ad.notifyDataSetChanged();
+            }
+        });
+
+
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

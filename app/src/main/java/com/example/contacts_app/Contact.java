@@ -1,6 +1,7 @@
 package com.example.contacts_app;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class Contact {
     private int id;
@@ -64,5 +65,19 @@ public class Contact {
         }
         return null; // якщо нічого не знайде, то вертаєм ніц
     }
+
+    public static class ComparatorByName implements Comparator<String>{
+        @Override
+        public int compare(String c1, String c2) {
+            return c1.compareTo(c2);
+        }
+    }
+    public static class ComparatorById implements Comparator<Contact>{
+        @Override
+        public int compare(Contact c1, Contact c2) {
+            return c2.getId() - c1.getId();
+        }
+    }
+
 
 }
