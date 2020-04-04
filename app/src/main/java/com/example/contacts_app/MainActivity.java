@@ -63,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
                 String onClickedName = contactsForList.get(position);
                 textView.setText(onClickedName);
 
-
                 Intent i = new Intent(MainActivity.this, ContactPage.class);
 
                 Log.v("some", contacts.get(position) + " " + position);

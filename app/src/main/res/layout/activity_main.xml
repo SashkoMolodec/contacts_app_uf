@@ -4,17 +4,71 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:padding="10dp">
+    android:padding="10dp"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:id="@+id/linear_sort"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/displayContact"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="Sort by"
+            android:padding="8dp"
+            />
+
+        <RadioGroup
+            android:id="@+id/radio_group"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleX="0.8"
+            android:scaleY="0.8"
+            >
+
+            <RadioButton
+                android:id="@+id/radio_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Name"
+                />
+
+            <RadioButton
+                android:id="@+id/radio_surname"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Surname" />
+
+            <RadioButton
+                android:id="@+id/radio_recently"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Recently added"/>
+
+        </RadioGroup>
+
+
+    </LinearLayout>
 
     <ListView
         android:id="@+id/contacts_list"
         android:layout_width="409dp"
         android:layout_height="700dp"
         app:layout_constraintEnd_toEndOf="parent"
-
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="48dp"></ListView>
+        app:layout_constraintTop_toBottomOf="@+id/linear_sort">
+
+    </ListView>
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add"
@@ -26,23 +80,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@android:drawable/ic_input_add" />
 
-    <Button
-        android:id="@+id/sort_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sort by Name"
-        app:layout_constraintBottom_toTopOf="@+id/contacts_list"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="SOME TEXT"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
