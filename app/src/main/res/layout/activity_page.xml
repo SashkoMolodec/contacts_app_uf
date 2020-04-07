@@ -12,7 +12,7 @@
         android:id="@+id/contactID"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="200dp"
+        android:layout_marginTop="300dp"
         android:text="ContactID"
         android:textSize="25sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -32,15 +32,27 @@
         app:layout_constraintTop_toBottomOf="@+id/contactID" />
 
     <EditText
-        android:layout_marginTop="10dp"
+        android:id="@+id/contactSurname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:inputType="none"
+        android:text="ContactSurname"
+        android:textSize="25sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/contactName" />
+
+    <EditText
         android:id="@+id/contactNumber"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="ContactNumber"
         android:textSize="25sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.6"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/contactName" />
+        app:layout_constraintTop_toBottomOf="@+id/contactSurname" />
 
     <Button
         android:id="@+id/delete_btn"
@@ -73,6 +85,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/contactNumber" />
+
+    <ImageView
+        android:id="@+id/img_avatar"
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
+        app:layout_constraintBottom_toTopOf="@+id/contactID"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

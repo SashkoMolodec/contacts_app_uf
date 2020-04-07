@@ -10,7 +10,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class ContactAddActivity extends AppCompatActivity {
-    EditText name_input, number_input;
+    EditText name_input, number_input, surname_input;
     Button btn_add;
 
     @Override
@@ -20,6 +20,7 @@ public class ContactAddActivity extends AppCompatActivity {
 
         number_input = findViewById(R.id.inputNumber);
         name_input = findViewById(R.id.inputName);
+        surname_input = findViewById(R.id.inputSurname);
         btn_add = findViewById(R.id.add_contact_ok_button);
 
         btn_add.setOnClickListener(new View.OnClickListener() {
@@ -28,7 +29,9 @@ public class ContactAddActivity extends AppCompatActivity {
                 if(name_input.getText().length()!=0){
                     Intent i = new Intent();
                     i.putExtra("NAME",name_input.getText()+"");
+                    i.putExtra("SURNAME", surname_input.getText()+"");
                     i.putExtra("NUMBER",number_input.getText()+"");
+
                     setResult(RESULT_OK,i);
                     finish();
                 }

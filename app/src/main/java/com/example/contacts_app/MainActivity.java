@@ -51,10 +51,10 @@ public class MainActivity extends AppCompatActivity {
         rb_surname = findViewById(R.id.radio_surname);
 
         contacts = new ArrayList<>();
-        contacts.add(new Contact(1, "Sasha", "+3580545"));
-        contacts.add(new Contact(2, "Andreiko", "+3809285828"));
-        contacts.add(new Contact(3, "Sonya", "+3222002545"));
-        contacts.add(new Contact(4, "Volodya", "+785454555"));
+        contacts.add(new Contact(1, "Sasha","Kravch", "+3580545"));
+        contacts.add(new Contact(2, "Andreiko","Lecschk", "+3809285828"));
+        contacts.add(new Contact(3, "Sonya", "Dem","+3222002545"));
+        contacts.add(new Contact(4, "Volodya", "Masl","+785454555"));
 
 
         contactsForList = Contact.getAllNames(contacts);
@@ -84,9 +84,12 @@ public class MainActivity extends AppCompatActivity {
                 // айді якого буде дорівнювати idContact)
                 Contact c = Contact.getContactByID(contacts, idContact);
 
-                i.putExtra("NAME", c.getName());
+                i.putExtra(Contact.class.getSimpleName(),c);
+
+               /* i.putExtra("NAME", c.getName());
                 i.putExtra("ID_CONTACT", idContact);
                 i.putExtra("NUMBER", c.getNumber());
+                i.putExtra("SURNAME",c.getSurname());*/
 
                 startActivityForResult(i, ID_contactPage);
 
@@ -141,9 +144,10 @@ public class MainActivity extends AppCompatActivity {
                 Bundle extras = data.getExtras();
 
                 String name = extras.getString("NAME");
+                String surname = extras.getString("SURNAME");
                 String number = extras.getString("NUMBER");
 
-                Contact c = new Contact(contacts.size() + 1, name, number); // Якщо ми створюємо 5-ий контакт, то
+                Contact c = new Contact(contacts.size() + 1, name, surname, number); // Якщо ми створюємо 5-ий контакт, то
                 // його айді = 4(розмір масиву)+1 = 5
                 contacts.add(c);
                 contactsForList.add(name);
@@ -154,14 +158,17 @@ public class MainActivity extends AppCompatActivity {
                 Log.v("requestCode", "ID_contactPage");
                 Bundle extras = data.getExtras();
 
-                int id = extras.getInt("ID");
-
+                //int id = extras.getInt("ID");
+                Contact contactFromPage = extras.getParcelable(Contact.class.getSimpleName());
+                Contact contactToChange = Contact.getContactByID(contacts, contactFromPage.getId());
+                Log.v("contactToChange", contactToChange.toString());
+                Log.v("contactFromPage", contactFromPage.toString());
                 if (extras.getString("btn_pressed").equals("btn_delete")) {
 
-                    Log.v("id", id + "");
+                   // Log.v("id", id + "");
 
                     //Витягуємо контакт, які ми повинні видалити
-                    Contact contact_to_delete = Contact.getContactByID(contacts, id);
+                    Contact contact_to_delete = Contact.getContactByID(contacts, contactToChange.getId());
 
                     //Видаляємо з ListView наший контакт
                     contactsForList.remove(contact_to_delete.getName());
@@ -173,13 +180,20 @@ public class MainActivity extends AppCompatActivity {
                     listView.setAdapter(ad);
 
                 } else if (extras.getString("btn_pressed").equals("btn_update")) {
-                    Contact contact_to_update = Contact.getContactByID(contacts, id);
-                    String newName = extras.getString("NAME");
-                    String newNumber = extras.getString("NUMBER");
+                   // Contact updatedContact = extras.getParcelable(Contact.class.getSimpleName());
 
-                    contactsForList.set(contactsForList.indexOf(contact_to_update.getName()), newName);
-                    contact_to_update.setName(newName);
-                    contact_to_update.setNumber(newNumber);
+                   // Log.v("contact",updatedContact.getId()+"");
+
+                   // String newName = extras.getString("NAME");
+                    //String newNumber = extras.getString("NUMBER");
+                    //String newSurname = extras.getString("SURNAME");
+
+                   // Log.v("contact", updatedContact.getName()+"");
+
+                    contactsForList.set(contactsForList.indexOf(contactToChange.getName()), contactFromPage.getName());
+                    contactToChange.setName(contactFromPage.getName());
+                    contactToChange.setNumber(contactFromPage.getNumber());
+                    contactToChange.setSurname(contactFromPage.getSurname());
 
                     listView.setAdapter(ad);
 
