@@ -1,6 +1,7 @@
 package com.example.contacts_app;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -32,10 +33,12 @@ public class MainActivity extends AppCompatActivity {
 
     ArrayList<Contact> contacts; // List = ArrayList
 
-    ArrayList<String> contactsForList;
+
     ArrayAdapter<String> ad;
 
-
+    DBContactsHelper dbHelper = new DBContactsHelper(this);
+    static SQLiteDatabase database;
+    static ArrayList<String> contactsForList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,14 +53,18 @@ public class MainActivity extends AppCompatActivity {
         rb_recently = findViewById(R.id.radio_recently);
         rb_surname = findViewById(R.id.radio_surname);
 
-        contacts = new ArrayList<>();
+        /*contacts = new ArrayList<>();
         contacts.add(new Contact(1, "Sasha","Kravch", "+3580545"));
         contacts.add(new Contact(2, "Andreiko","Lecschk", "+3809285828"));
         contacts.add(new Contact(3, "Sonya", "Dem","+3222002545"));
-        contacts.add(new Contact(4, "Volodya", "Masl","+785454555"));
+        contacts.add(new Contact(4, "Volodya", "Masl","+785454555"));*/
 
+        //contactsForList = Contact.getAllNames(contacts);
+        contactsForList = new ArrayList<String>();
+        database = dbHelper.getReadableDatabase();
+        contactsForList = dbHelper.getListFromDB(database);
+        database.close();
 
-        contactsForList = Contact.getAllNames(contacts);
 
         ad = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, contactsForList);
@@ -142,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             if (requestCode == ID_addContact) {
                 Bundle extras = data.getExtras();
-
+/*
                 String name = extras.getString("NAME");
                 String surname = extras.getString("SURNAME");
                 String number = extras.getString("NUMBER");
@@ -151,7 +158,8 @@ public class MainActivity extends AppCompatActivity {
                 // його айді = 4(розмір масиву)+1 = 5
                 contacts.add(c);
                 contactsForList.add(name);
-                listView.setAdapter(ad);
+                listView.setAdapter(ad);*/
+                ad.notifyDataSetChanged();
 
             }
             if (requestCode == ID_contactPage) {

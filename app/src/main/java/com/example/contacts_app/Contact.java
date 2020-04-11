@@ -11,6 +11,7 @@ public class Contact implements Parcelable {
     private int id;
     private String name;
     private String number;
+    private String surname;
 
     @Override
     public String toString() {
@@ -22,7 +23,7 @@ public class Contact implements Parcelable {
                 '}';
     }
 
-    private String surname;
+
 
     public Contact(int id, String name, String surname, String number) {
         this.id = id;

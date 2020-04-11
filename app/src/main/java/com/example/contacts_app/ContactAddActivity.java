@@ -7,11 +7,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import static com.example.contacts_app.MainActivity.database;
+import static com.example.contacts_app.MainActivity.contactsForList;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class ContactAddActivity extends AppCompatActivity {
     EditText name_input, number_input, surname_input;
     Button btn_add;
+    DBContactsHelper dbHelper = new DBContactsHelper(this);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -27,11 +30,22 @@ public class ContactAddActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(name_input.getText().length()!=0){
-                    Intent i = new Intent();
+                    String name = name_input.getText().toString();
+                    String surname = surname_input.getText().toString();
+                    String number = number_input.getText().toString();
+
+                    database = dbHelper.getWritableDatabase();
+                    Contact c = new Contact(dbHelper.getContactsCount()+1,name,surname,number);
+                    dbHelper.writeContactToDB(database, c);
+                    dbHelper.logDB(database);
+
+                    contactsForList.add(name);
+                    /*
                     i.putExtra("NAME",name_input.getText()+"");
                     i.putExtra("SURNAME", surname_input.getText()+"");
                     i.putExtra("NUMBER",number_input.getText()+"");
 
+                */ Intent i = new Intent();
                     setResult(RESULT_OK,i);
                     finish();
                 }
