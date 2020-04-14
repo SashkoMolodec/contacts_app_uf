@@ -1,8 +1,14 @@
 package com.example.contacts_app;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -10,27 +16,44 @@ import java.util.Comparator;
 public class Contact implements Parcelable {
     private int id;
     private String name;
-    private String number;
     private String surname;
+    private String number;
+    private byte[] avatar;
 
     @Override
     public String toString() {
         return "Contact{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", surname='" + surname + '\''+
                 ", number='" + number + '\'' +
-                ", surname='" + surname + '\'' +
-                '}';
+                ", avatar='" + avatar + '\'' + '}';
     }
 
 
 
-    public Contact(int id, String name, String surname, String number) {
+    public Contact(int id, String name, String surname, String number, byte[] avatar) {
         this.id = id;
         this.name = name;
-        this.number = number;
         this.surname = surname;
+        this.number = number;
+        this.avatar = avatar;
 
+    }
+
+    public Contact(String name, String surname,  String number) {
+        this.name = name;
+        this.surname = surname;
+        this.number = number;
+
+    }
+
+    public byte[] getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(byte[] avatar) {
+        this.avatar = avatar;
     }
 
     public String getSurname() {
@@ -65,25 +88,8 @@ public class Contact implements Parcelable {
         this.number = number;
     }
 
-    public static ArrayList<String> getAllNames(ArrayList<Contact> c){
-        ArrayList<String> res = new ArrayList<>();
-        for(Contact temp:c){
-            res.add(temp.getName());
-        }
-        return res;
-    }
 
-    public static int getIDbyListName(ArrayList<Contact> c, String name){
-        // Проганяємо через цикл усі контакти і порівнюємо шукане ім'я з іменем
-        // кожного об'єкту
-        for(Contact temp:c){
-            if(temp.getName().equals(name))
-                return temp.getId(); // Вертаємо айді цього об'єкту
-        }
-        return 0; // Якщо нічого не знайде, то поверне 0
-    }
-
-    public static Contact getContactByID(ArrayList<Contact> c, int id){
+    public static Contact getOrginialContactByID(ArrayList<Contact> c, int id){
         // Проганяємо через цикл усі контакти і шукаємо наший об'єкт
         // контакту за допомогою айдішки (Тобто мають дві збігатись)
         for(Contact temp:c){
@@ -104,13 +110,18 @@ public class Contact implements Parcelable {
         dest.writeString(name);
         dest.writeString(surname);
         dest.writeString(number);
+        dest.writeInt(avatar.length);
+        dest.writeByteArray(avatar);
     }
 
     protected Contact(Parcel in) {
         id = in.readInt();
         name = in.readString();
-        number = in.readString();
         surname = in.readString();
+        number = in.readString();
+        avatar = new byte[in.readInt()];
+        in.readByteArray(avatar);
+
     }
 
     public static final Creator<Contact> CREATOR = new Creator<Contact>() {
@@ -125,13 +136,10 @@ public class Contact implements Parcelable {
         }
     };
 
-
-
-
-    public static class ComparatorByName implements Comparator<String>{
+    public static class ComparatorByName implements Comparator<Contact>{
         @Override
-        public int compare(String c1, String c2) {
-            return c1.compareTo(c2);
+        public int compare(Contact c1, Contact c2) {
+            return c1.getName().compareTo(c2.getName());
         }
     }
     public static class ComparatorById implements Comparator<Contact>{
@@ -141,5 +149,34 @@ public class Contact implements Parcelable {
         }
     }
 
+    public static byte[] getBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+
+        int len = 0;
+        while ((len = inputStream.read(buffer)) != -1) {
+            byteBuffer.write(buffer, 0, len);
+        }
+        return byteBuffer.toByteArray();
+    }
+
+    public static byte[] getBytesFromDrawable(Drawable d){
+        Bitmap bitmap = ((BitmapDrawable)d).getBitmap();
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        byte[] bitmapSample = stream.toByteArray();
+        return bitmapSample;
+    }
+
+    public static int getIDbyListName(ArrayList<Contact> c, String name){
+        // Проганяємо через цикл усі контакти і порівнюємо шукане ім'я з іменем
+        // кожного об'єкту
+        for(Contact temp:c){
+            if(temp.getName().equals(name))
+                return temp.getId(); // Вертаємо айді цього об'єкту
+        }
+        return 0; // Якщо нічого не знайде, то поверне 0
+    }
 
 }

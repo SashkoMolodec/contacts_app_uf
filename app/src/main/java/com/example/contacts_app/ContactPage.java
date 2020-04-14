@@ -1,7 +1,9 @@
 package com.example.contacts_app;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,14 +18,26 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
+import static com.example.contacts_app.MainActivity.UPDATE_CONTACT_RES;
+//import static com.example.contacts_app.MainActivity.ad;
+import static com.example.contacts_app.MainActivity.contactsForList;
+import static com.example.contacts_app.MainActivity.database;
+import static com.example.contacts_app.MainActivity.DELETE_CONTACT_RES;
+
 public class ContactPage extends AppCompatActivity {
     TextView c_ID;
     EditText c_Name, c_Number, c_Surname;
     Button btn_delete;
     Button btn_update,btn_confirm;
     ImageView imgAva;
-    Contact c;
+    Contact contactOrig;
     static final int PICK_IMAGE = 1;
+
+    DBContactsHelper dbHelper;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -48,29 +62,30 @@ public class ContactPage extends AppCompatActivity {
 
         //Extracting bundle
         Bundle extras = getIntent().getExtras();
-        c = (Contact) extras.getParcelable(Contact.class.getSimpleName());
+        Contact contactCopy = (Contact) extras.getParcelable(Contact.class.getSimpleName());
+        contactOrig = Contact.getOrginialContactByID(contactsForList,contactCopy.getId());
 
-        /*String name = extras.getString("NAME");
-        String number = extras.getString("NUMBER");
-        String id = extras.getInt("ID_CONTACT") + "";
-        String surname = extras.getString("SURNAME");*/
-        //Log.v("somee",name + " " + id);
+        c_ID.setText(contactOrig.getId()+"");
+        c_Number.setText(contactOrig.getNumber());
+        c_Name.setText(contactOrig.getName());
+        c_Surname.setText(contactOrig.getSurname());
 
-        imgAva.setImageDrawable(getDrawable(R.drawable.sample));
+        imgAva.setImageBitmap(BitmapFactory.decodeByteArray(contactOrig.getAvatar(),
+                    0, contactOrig.getAvatar().length));
+            Log.v("mLog","c.getAvatar() is not null!");
 
-        c_ID.setText(c.getId()+"");
-        c_Number.setText(c.getNumber());
-        c_Name.setText(c.getName());
-        c_Surname.setText(c.getSurname());
+
+
         Log.v("id in contactPage",c_ID.getText().toString());
+
+        dbHelper = DBContactsHelper.getInstance(this);
 
         btn_delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent();
-                i.putExtra("btn_pressed","btn_delete");
-                i.putExtra(Contact.class.getSimpleName(),c);
-                setResult(RESULT_OK,i);
+                i.putExtra(Contact.class.getSimpleName(),contactOrig);
+                setResult(DELETE_CONTACT_RES,i);
                 finish();
             }
         });
@@ -87,20 +102,17 @@ public class ContactPage extends AppCompatActivity {
         btn_confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String newName = c_Name.getText().toString();
+                String newSurname = c_Surname.getText().toString();
+                String newNumber = c_Number.getText().toString();
+
+                contactOrig.setName(newName);
+                contactOrig.setSurname(newSurname);
+                contactOrig.setNumber(newNumber);
+
                 Intent i = new Intent();
-                i.putExtra("btn_pressed","btn_update");
-
-                c.setName(c_Name.getText().toString());
-                c.setSurname(c_Surname.getText().toString());
-                c.setNumber(c_Number.getText().toString());
-
-                i.putExtra(Contact.class.getSimpleName(), c);
-
-               /* i.putExtra("ID", Integer.parseInt(c_ID.getText().toString()));
-                i.putExtra("NAME",c_Name.getText()+"");
-                i.putExtra("NUMBER",c_Number.getText()+"");
-                i.putExtra("SURNAME",c_Surname.getText()+"");*/
-                setResult(RESULT_OK,i);
+                i.putExtra(Contact.class.getSimpleName(),contactOrig);
+                setResult(UPDATE_CONTACT_RES,i);
                 finish();
             }
         });
@@ -108,12 +120,13 @@ public class ContactPage extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-
                 galleryIntent.setType("image/*");
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(Intent.createChooser(galleryIntent, "Select Picture"), PICK_IMAGE);
             }
         });
+
+
     }
 
         @Override
@@ -123,7 +136,23 @@ public class ContactPage extends AppCompatActivity {
                     Uri selectedImage = data.getData();
                     Log.v("image", "IMAGE CHOSEN!");
                     imgAva.setImageURI(selectedImage);
-                    //c.setBackground(sselectedImage);
+                    InputStream iStream = null;
+
+                    try {
+                        iStream = getContentResolver().openInputStream(selectedImage);
+                        byte[] inputData = Contact.getBytes(iStream);
+
+                        contactOrig.setAvatar(inputData);
+                        database = dbHelper.getWritableDatabase();
+                        ContentValues cv = new ContentValues();
+                        cv.put(DBContactsHelper.KEY_AVATAR, inputData);
+                        database.update(DBContactsHelper.TABLE_CONTACTS,cv,"_id = " + contactOrig.getId(),null);
+                        database.close();
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
                 }
             }
         }

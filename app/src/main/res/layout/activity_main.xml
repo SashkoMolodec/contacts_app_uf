@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="10dp"
+    android:padding="8dp"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -12,33 +12,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/displayContact"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="Sort by"
-            android:padding="8dp"
-            />
+            android:padding="8dp" />
 
         <RadioGroup
             android:id="@+id/radio_group"
-            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:scaleX="0.8"
-            android:scaleY="0.8"
-            >
+            android:scaleY="0.8">
 
             <RadioButton
                 android:id="@+id/radio_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Name"
-                />
+                android:text="Name" />
 
             <RadioButton
                 android:id="@+id/radio_surname"
@@ -52,7 +49,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Recently added"/>
+                android:text="Recently added" />
 
         </RadioGroup>
 
@@ -61,11 +58,11 @@
 
     <ListView
         android:id="@+id/contacts_list"
-        android:layout_width="409dp"
-        android:layout_height="700dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linear_sort">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="30dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/linear_sort">
 
     </ListView>
 
@@ -76,6 +73,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
 
+        android:layout_margin="7dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@android:drawable/ic_input_add" />

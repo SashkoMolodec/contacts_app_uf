@@ -1,5 +1,6 @@
 package com.example.contacts_app;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.nio.BufferUnderflowException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -30,15 +32,15 @@ public class MainActivity extends AppCompatActivity {
 
     int ID_contactPage = 1;
     int ID_addContact = 2;
+    static final int DELETE_CONTACT_RES = 3;
+    static final int UPDATE_CONTACT_RES = 4;
 
-    ArrayList<Contact> contacts; // List = ArrayList
+    ContactsAdapter ad;
 
-
-    ArrayAdapter<String> ad;
-
-    DBContactsHelper dbHelper = new DBContactsHelper(this);
+    DBContactsHelper dbHelper;
     static SQLiteDatabase database;
-    static ArrayList<String> contactsForList;
+    static ArrayList<Contact> contactsForList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,51 +55,26 @@ public class MainActivity extends AppCompatActivity {
         rb_recently = findViewById(R.id.radio_recently);
         rb_surname = findViewById(R.id.radio_surname);
 
-        /*contacts = new ArrayList<>();
-        contacts.add(new Contact(1, "Sasha","Kravch", "+3580545"));
-        contacts.add(new Contact(2, "Andreiko","Lecschk", "+3809285828"));
-        contacts.add(new Contact(3, "Sonya", "Dem","+3222002545"));
-        contacts.add(new Contact(4, "Volodya", "Masl","+785454555"));*/
-
-        //contactsForList = Contact.getAllNames(contacts);
-        contactsForList = new ArrayList<String>();
-        database = dbHelper.getReadableDatabase();
-        contactsForList = dbHelper.getListFromDB(database);
-        database.close();
+       contactsForList = new ArrayList<Contact>();
 
 
-        ad = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, contactsForList);
+        dbHelper = DBContactsHelper.getInstance(this);
+        contactsForList = dbHelper.getObjectListFromDB();
+
+        ad = new ContactsAdapter(this, contactsForList);
 
 
         listView.setAdapter(ad);
 
-
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Contact onClickedContact = contactsForList.get(position);
 
-                String onClickedName = contactsForList.get(position);
-                textView.setText(onClickedName);
+                Log.v("mLog","position in view: "+ position);
 
                 Intent i = new Intent(MainActivity.this, ContactPage.class);
-
-                Log.v("some", contacts.get(position) + " " + position);
-
-                // Ми витягуємо власну айдішку з контакту за допомогою імені контакту
-                int idContact = Contact.getIDbyListName(contacts, onClickedName);
-
-                // Отримуємо об'єкт контакту за допомогою айдішки (Ми присвоїмо той об'єкт,
-                // айді якого буде дорівнювати idContact)
-                Contact c = Contact.getContactByID(contacts, idContact);
-
-                i.putExtra(Contact.class.getSimpleName(),c);
-
-               /* i.putExtra("NAME", c.getName());
-                i.putExtra("ID_CONTACT", idContact);
-                i.putExtra("NUMBER", c.getNumber());
-                i.putExtra("SURNAME",c.getSurname());*/
-
+                i.putExtra(Contact.class.getSimpleName(),onClickedContact);
                 startActivityForResult(i, ID_contactPage);
 
             }
@@ -118,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.v("radioButton","Name RadioButton");
                         //Collections.sort(contactsForList, new Contact.ComparatorByName());
                         //ArrayList<String>
-                        Collections.sort(contactsForList);
+                        //Collections.sort(contactsForList);
                         //contactsForList.sort(new Contact.ComparatorByName());
                         break;
                     case R.id.radio_surname:
@@ -126,9 +103,9 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.radio_recently:
                         Log.v("radioButton","Recently RadioButton");
-                        Collections.sort(contacts,new Contact.ComparatorById());
+                        //Collections.sort(contacts,new Contact.ComparatorById());
                         contactsForList.clear();
-                        contactsForList.addAll(Contact.getAllNames(contacts));
+                       // contactsForList.addAll(Contact.getAllNames(contacts));
                         break;
                 }
                 ad.notifyDataSetChanged();
@@ -140,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (resultCode == RESULT_CANCELED) {
             if (requestCode == ID_contactPage) {
                 Toast alert = Toast.makeText(this, "Exit contact page", Toast.LENGTH_SHORT);
@@ -148,68 +126,46 @@ public class MainActivity extends AppCompatActivity {
         }
         if (resultCode == RESULT_OK) {
             if (requestCode == ID_addContact) {
-                Bundle extras = data.getExtras();
-/*
-                String name = extras.getString("NAME");
-                String surname = extras.getString("SURNAME");
-                String number = extras.getString("NUMBER");
 
-                Contact c = new Contact(contacts.size() + 1, name, surname, number); // Якщо ми створюємо 5-ий контакт, то
-                // його айді = 4(розмір масиву)+1 = 5
-                contacts.add(c);
-                contactsForList.add(name);
-                listView.setAdapter(ad);*/
-                ad.notifyDataSetChanged();
+                dbHelper.logDB();
+                ad.updateAdapter();
+            }
 
             }
+        if(resultCode == DELETE_CONTACT_RES){
             if (requestCode == ID_contactPage) {
-                Log.v("requestCode", "ID_contactPage");
                 Bundle extras = data.getExtras();
+                Contact c = extras.getParcelable(Contact.class.getSimpleName());
 
-                //int id = extras.getInt("ID");
-                Contact contactFromPage = extras.getParcelable(Contact.class.getSimpleName());
-                Contact contactToChange = Contact.getContactByID(contacts, contactFromPage.getId());
-                Log.v("contactToChange", contactToChange.toString());
-                Log.v("contactFromPage", contactFromPage.toString());
-                if (extras.getString("btn_pressed").equals("btn_delete")) {
+                Contact orig_c = Contact.getOrginialContactByID(contactsForList,c.getId());
 
-                   // Log.v("id", id + "");
+                Log.v("mLog","deleteCont -> c == orig_c: "+ (c==orig_c)); //different references
+                Log.v("mLog","deleteCont -> id == orig_id: "+ (c.getId()==orig_c.getId()));
+                Log.v("mLog","index contact in list " + contactsForList.indexOf(orig_c));
 
-                    //Витягуємо контакт, які ми повинні видалити
-                    Contact contact_to_delete = Contact.getContactByID(contacts, contactToChange.getId());
+                contactsForList.remove(orig_c);
 
-                    //Видаляємо з ListView наший контакт
-                    contactsForList.remove(contact_to_delete.getName());
-
-                    //Видаляємо з самого ArrayList'а контакт
-                    contacts.remove(contact_to_delete);
-
-                    //Обновляємо ListView
-                    listView.setAdapter(ad);
-
-                } else if (extras.getString("btn_pressed").equals("btn_update")) {
-                   // Contact updatedContact = extras.getParcelable(Contact.class.getSimpleName());
-
-                   // Log.v("contact",updatedContact.getId()+"");
-
-                   // String newName = extras.getString("NAME");
-                    //String newNumber = extras.getString("NUMBER");
-                    //String newSurname = extras.getString("SURNAME");
-
-                   // Log.v("contact", updatedContact.getName()+"");
-
-                    contactsForList.set(contactsForList.indexOf(contactToChange.getName()), contactFromPage.getName());
-                    contactToChange.setName(contactFromPage.getName());
-                    contactToChange.setNumber(contactFromPage.getNumber());
-                    contactToChange.setSurname(contactFromPage.getSurname());
-
-                    listView.setAdapter(ad);
-
-                }
-
-
+                database = dbHelper.getWritableDatabase();
+                database.delete(DBContactsHelper.TABLE_CONTACTS,"_id = " +orig_c.getId(),null);
+                database.close();
             }
-
         }
+        if(resultCode == UPDATE_CONTACT_RES){
+            if(requestCode == ID_contactPage){
+                Bundle extras = data.getExtras();
+                Contact c = extras.getParcelable(Contact.class.getSimpleName());
+
+                ContentValues cv = new ContentValues();
+                cv.put(DBContactsHelper.KEY_NUMBER,c.getNumber());
+                cv.put(DBContactsHelper.KEY_SURNAME,c.getSurname());
+                cv.put(DBContactsHelper.KEY_NAME,c.getName());
+                database = dbHelper.getWritableDatabase();
+                database.update(DBContactsHelper.TABLE_CONTACTS,cv,"_id = " + c.getId(),null);
+                database.close();
+            }
+            listView.setAdapter(ad);
+        }
+
     }
 }
+
