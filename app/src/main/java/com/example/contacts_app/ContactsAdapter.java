@@ -34,9 +34,6 @@ public class ContactsAdapter extends BaseAdapter{
     public Object getItem(int position) {
         return contactList.get(position); //returns list item at the specified position
     }
-    public Object getItem(Object object){
-        return null;
-    }
 
     @Override
     public long getItemId(int position) {

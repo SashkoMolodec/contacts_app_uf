@@ -62,7 +62,9 @@
         android:text="Delete"
         app:layout_constraintEnd_toStartOf="@+id/edit_btn"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/contactNumber" />
+        app:layout_constraintTop_toBottomOf="@+id/contactNumber"
+     />
+    <!--android:onClick="showDeleteDialog"-->
 
     <Button
         android:id="@+id/edit_btn"
@@ -74,7 +76,8 @@
         android:text="Edit"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/delete_btn"
-        app:layout_constraintTop_toBottomOf="@+id/contactNumber" />
+        app:layout_constraintTop_toBottomOf="@+id/contactNumber"
+        android:onClick="showDeleteDialog"/>
 
     <Button
         android:id="@+id/confirm_btn"

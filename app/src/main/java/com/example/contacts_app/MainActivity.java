@@ -1,19 +1,26 @@
 package com.example.contacts_app;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -21,6 +28,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.nio.BufferUnderflowException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -41,10 +49,13 @@ public class MainActivity extends AppCompatActivity {
     static SQLiteDatabase database;
     static ArrayList<Contact> contactsForList;
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        final byte[] bitmapSample = Contact.getBytesFromDrawable(getDrawable(R.drawable.sample));
 
         listView = findViewById(R.id.contacts_list);
         textView = findViewById(R.id.displayContact);
@@ -54,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
         rb_name = findViewById(R.id.radio_name);
         rb_recently = findViewById(R.id.radio_recently);
         rb_surname = findViewById(R.id.radio_surname);
+
+
 
        contactsForList = new ArrayList<Contact>();
 
@@ -80,10 +93,54 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         f_button_add.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this, ContactAddActivity.class);
-                startActivityForResult(i, ID_addContact);
+                //Intent i = new Intent(MainActivity.this, ContactAddActivity.class);
+                //startActivityForResult(i, ID_addContact);
+                //nameInput.setHint("Enter name");
+               // surnameInput.setHint("Enter surname");
+               // LinearLayout layout = new LinearLayout(MainActivity.this);
+                //layout.setOrientation(LinearLayout.VERTICAL);
+                //layout.addView(nameInput); layout.addView(surnameInput);
+
+                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                final LayoutInflater inflater = MainActivity.this.getLayoutInflater();
+                final View viewDialog = inflater.inflate(R.layout.add_contact_dialog,null);
+
+                final EditText nameInput = (EditText) viewDialog.findViewById(R.id.edit_name);
+                final EditText surnameInput = (EditText) viewDialog.findViewById(R.id.edit_surname);
+                final EditText numberInput = (EditText) viewDialog.findViewById(R.id.edit_number);
+
+                    builder
+                        .setView(viewDialog)
+                        .setTitle("Add contact")
+                        // Specifying a listener allows you to take an action before dismissing the dialog.
+                        // The dialog is automatically dismissed when a dialog button is clicked.
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dbHelper = DBContactsHelper.getInstance(MainActivity.this);
+
+                                String name = nameInput.getText().toString();
+                                String surname = surnameInput.getText().toString();
+                                String number = numberInput.getText().toString();
+                                Log.v("mLog",name + " " + surname + " " + number);
+                                Contact c = new Contact(name,surname,number);
+                                c.setId(dbHelper.getMaximumID()+1);
+                                c.setAvatar(bitmapSample);
+                                dbHelper.writeContactToDB(c);
+                                contactsForList.add(c);
+                            }
+                        })
+                        // A null listener allows the button to dismiss the dialog and take no further action.
+                        .setNegativeButton(android.R.string.no, null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+
+
+
+
             }
         });
         rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -103,7 +160,13 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.radio_recently:
                         Log.v("radioButton","Recently RadioButton");
-                        //Collections.sort(contacts,new Contact.ComparatorById());
+
+                       /* Collections.sort(contacts, new Comparator<Contact>(){
+                            @Override
+                            public int compare(Contact o1, Contact o2) {
+                                return 0;
+                            }
+                        });*/
                         contactsForList.clear();
                        // contactsForList.addAll(Contact.getAllNames(contacts));
                         break;
@@ -163,9 +226,8 @@ public class MainActivity extends AppCompatActivity {
                 database.update(DBContactsHelper.TABLE_CONTACTS,cv,"_id = " + c.getId(),null);
                 database.close();
             }
-            listView.setAdapter(ad);
         }
-
+        listView.setAdapter(ad);
     }
 }
 

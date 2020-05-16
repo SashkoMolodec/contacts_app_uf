@@ -45,7 +45,6 @@ public class Contact implements Parcelable {
         this.name = name;
         this.surname = surname;
         this.number = number;
-
     }
 
     public byte[] getAvatar() {
@@ -110,6 +109,7 @@ public class Contact implements Parcelable {
         dest.writeString(name);
         dest.writeString(surname);
         dest.writeString(number);
+
         dest.writeInt(avatar.length);
         dest.writeByteArray(avatar);
     }

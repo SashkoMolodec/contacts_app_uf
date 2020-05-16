@@ -1,7 +1,9 @@
 package com.example.contacts_app;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -13,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
@@ -83,10 +86,27 @@ public class ContactPage extends AppCompatActivity {
         btn_delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent();
-                i.putExtra(Contact.class.getSimpleName(),contactOrig);
-                setResult(DELETE_CONTACT_RES,i);
-                finish();
+
+                new AlertDialog.Builder(ContactPage.this)
+                        .setTitle("Delete contact")
+                        .setMessage("Are you sure you want to delete this contact?")
+                        // Specifying a listener allows you to take an action before dismissing the dialog.
+                        // The dialog is automatically dismissed when a dialog button is clicked.
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Continue with delete operations
+                                Intent i = new Intent();
+                                i.putExtra(Contact.class.getSimpleName(),contactOrig);
+                                setResult(DELETE_CONTACT_RES,i);
+                                finish();
+                            }
+                        })
+                        // A null listener allows the button to dismiss the dialog and take no further action.
+                        .setNegativeButton(android.R.string.no, null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+
             }
         });
 
@@ -97,6 +117,7 @@ public class ContactPage extends AppCompatActivity {
                 c_Number.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
                 c_Surname.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
                 btn_confirm.setVisibility(View.VISIBLE);
+
             }
         });
         btn_confirm.setOnClickListener(new View.OnClickListener() {
@@ -125,8 +146,6 @@ public class ContactPage extends AppCompatActivity {
                 startActivityForResult(Intent.createChooser(galleryIntent, "Select Picture"), PICK_IMAGE);
             }
         });
-
-
     }
 
         @Override

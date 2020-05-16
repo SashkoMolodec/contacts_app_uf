@@ -27,7 +27,6 @@ public class DBContactsHelper extends SQLiteOpenHelper {
     static final String[] COLUMNS = {KEY_ID, KEY_NAME, KEY_SURNAME, KEY_NUMBER,KEY_AVATAR};
 
 
-
     private DBContactsHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
